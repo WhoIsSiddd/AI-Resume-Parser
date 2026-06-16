@@ -1,0 +1,8 @@
+{
+  "venvPath": ".",
+  "venv": "ai-backend/venv",
+  "typeCheckingMode": "basic",
+  "extraPaths": ["ai-backend"],
+  "include": ["ai-backend", "create_test_pdf.py"],
+  "exclude": ["**/node_modules", "**/__pycache__", "ai-backend/venv"]
+}

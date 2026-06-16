@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+pymupdf
+python-docx
+sentence-transformers
+spacy
+torch
+numpy
+httpx
+Flask==3.1.0
+flask-cors==5.0.0
+python-dotenv
+reportlab
