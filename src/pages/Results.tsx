@@ -4,6 +4,10 @@ import {
   MapPin, Linkedin, Github, CheckCircle2, 
   XCircle, ChevronRight, FileText, Star, Zap, TrendingUp
 } from 'lucide-react';
+import {
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  ResponsiveContainer, Tooltip
+} from 'recharts';
 import { ResumeData } from '../types';
 
 interface ResultsProps {
@@ -230,15 +234,25 @@ export function Results({ onNavigate, resumes }: ResultsProps) {
                       </h2>
                       <div className="text-xs text-slate-600 dark:text-slate-500 font-bold tracking-wide bg-slate-100 dark:bg-black/40 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/5">Weighted Algorithm</div>
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-6">
-                      <BentoScoreBar label="Required Skills" weight="35%" score={selectedResume.atsBreakdown.skillScore} colorClass="bg-indigo-500" />
-                      <BentoScoreBar label="Preferred Skills" weight="10%" score={selectedResume.atsBreakdown.preferredSkillScore} colorClass="bg-violet-400" />
-                      <BentoScoreBar label="Experience Match" weight="20%" score={selectedResume.atsBreakdown.experienceScore} colorClass="bg-blue-500" />
-                      <BentoScoreBar label="Education Match" weight="15%" score={selectedResume.atsBreakdown.educationScore} colorClass="bg-emerald-500" />
-                      <BentoScoreBar label="Project Relevance" weight="10%" score={selectedResume.atsBreakdown.projectScore} colorClass="bg-violet-600" />
-                      <BentoScoreBar label="Certifications" weight="5%" score={selectedResume.atsBreakdown.certificationScore} colorClass="bg-amber-500" />
-                      <BentoScoreBar label="Format / Profile" weight="5%" score={selectedResume.atsBreakdown.formattingScore} colorClass="bg-rose-500" />
+
+                    {/* Two-column layout: radar left, bars right */}
+                    <div className="flex flex-col lg:flex-row gap-10 items-center">
+
+                      {/* Radar Chart */}
+                      <div className="w-full lg:w-[380px] shrink-0">
+                        <AtsRadarChart breakdown={selectedResume.atsBreakdown} />
+                      </div>
+
+                      {/* Score Bars */}
+                      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6">
+                        <BentoScoreBar label="Required Skills" weight="35%" score={selectedResume.atsBreakdown.skillScore} colorClass="bg-indigo-500" />
+                        <BentoScoreBar label="Preferred Skills" weight="10%" score={selectedResume.atsBreakdown.preferredSkillScore} colorClass="bg-violet-400" />
+                        <BentoScoreBar label="Experience Match" weight="20%" score={selectedResume.atsBreakdown.experienceScore} colorClass="bg-blue-500" />
+                        <BentoScoreBar label="Education Match" weight="15%" score={selectedResume.atsBreakdown.educationScore} colorClass="bg-emerald-500" />
+                        <BentoScoreBar label="Project Relevance" weight="10%" score={selectedResume.atsBreakdown.projectScore} colorClass="bg-violet-600" />
+                        <BentoScoreBar label="Certifications" weight="5%" score={selectedResume.atsBreakdown.certificationScore} colorClass="bg-amber-500" />
+                        <BentoScoreBar label="Format / Profile" weight="5%" score={selectedResume.atsBreakdown.formattingScore} colorClass="bg-rose-500" />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -374,6 +388,70 @@ function BentoScoreBar({ label, weight, score, colorClass }: { label: string, we
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ATS Radar Chart Component
+interface AtsBreakdown {
+  skillScore: number;
+  preferredSkillScore: number;
+  experienceScore: number;
+  educationScore: number;
+  projectScore: number;
+  certificationScore: number;
+  formattingScore: number;
+}
+
+function AtsRadarChart({ breakdown }: { breakdown: AtsBreakdown }) {
+  const data = [
+    { metric: 'Skills',      score: breakdown.skillScore },
+    { metric: 'Preferred',   score: breakdown.preferredSkillScore },
+    { metric: 'Experience',  score: breakdown.experienceScore },
+    { metric: 'Education',   score: breakdown.educationScore },
+    { metric: 'Projects',    score: breakdown.projectScore },
+    { metric: 'Certs',       score: breakdown.certificationScore },
+    { metric: 'Format',      score: breakdown.formattingScore },
+  ];
+
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { metric: string; score: number } }[] }) => {
+    if (active && payload && payload.length) {
+      const { metric, score } = payload[0].payload;
+      return (
+        <div className="bg-white dark:bg-[#1a1a2e] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 shadow-xl text-sm">
+          <p className="font-bold text-slate-800 dark:text-white">{metric}</p>
+          <p className="text-indigo-500 dark:text-indigo-300 font-black">{score}<span className="text-slate-400 text-xs font-normal"> / 100</span></p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="flex flex-col items-center">
+      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Skill Radar</p>
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
+          <PolarGrid
+            stroke="rgba(148,163,184,0.2)"
+            strokeDasharray="3 3"
+          />
+          <PolarAngleAxis
+            dataKey="metric"
+            tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
+          />
+          <Radar
+            name="ATS Score"
+            dataKey="score"
+            stroke="#6366f1"
+            strokeWidth={2}
+            fill="#6366f1"
+            fillOpacity={0.25}
+            dot={{ r: 4, fill: '#6366f1', strokeWidth: 0 }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+        </RadarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

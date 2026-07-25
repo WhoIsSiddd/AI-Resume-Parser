@@ -65,7 +65,7 @@ def extract_skills(text: str) -> List[str]:
             sentence_embeddings = embedding_model.encode(sentences, convert_to_tensor=True)
             cosine_scores = util.cos_sim(sentence_embeddings, MASTER_SKILLS_EMBEDDINGS)
 
-            THRESHOLD = 0.60  # Raised from 0.55 to reduce false positives
+            THRESHOLD = 0.72  # Higher threshold reduces false-positive skill matches
 
             for i in range(len(sentences)):
                 for j in range(len(MASTER_SKILLS)):

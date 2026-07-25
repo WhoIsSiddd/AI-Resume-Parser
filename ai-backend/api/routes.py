@@ -37,12 +37,12 @@ def parse_resume():
         
         # Read file contents
         contents = file.read()
-        filename = file.filename
+        filename = file.filename or ""
 
         # 1. Extract text
         from ai_engine.resume_parser import parse_pdf, parse_docx, extract_name, extract_contact_info, extract_location, split_into_sections, extract_years_experience
         
-        if not filename.lower().endswith(('.pdf', '.docx')):
+        if not filename or not filename.lower().endswith(('.pdf', '.docx')):
             return jsonify({"detail": "Unsupported file format"}), 400
         
         if filename.lower().endswith('.pdf'):

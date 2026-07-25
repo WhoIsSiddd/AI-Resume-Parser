@@ -26,6 +26,16 @@ app.use(express.json());
 // Routes
 app.use('/api/resumes', resumeRoutes);
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Resume Parser Express API Server is running',
+    health: '/api/health',
+    endpoints: ['/api/health', '/api/resumes']
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
